@@ -209,3 +209,4 @@ C:\Users\lucas.daniel\OneDrive - HOW BE TECNOLOGIA E SOLUCOES TLDA\Documentos\al
 C:\Users\lucas.daniel\OneDrive - HOW BE TECNOLOGIA E SOLUCOES TLDA\Documentos\alterar config de câmeras\src\NxMassConfigurator\obj\Release\net8.0\win-x64\refint\nx-mass-config.dll
 C:\Users\lucas.daniel\OneDrive - HOW BE TECNOLOGIA E SOLUCOES TLDA\Documentos\alterar config de câmeras\src\NxMassConfigurator\obj\Release\net8.0\win-x64\NxMassConfigurator.genruntimeconfig.cache
 C:\Users\lucas.daniel\OneDrive - HOW BE TECNOLOGIA E SOLUCOES TLDA\Documentos\alterar config de câmeras\src\NxMassConfigurator\obj\Release\net8.0\win-x64\ref\nx-mass-config.dll
+C:\Users\lucas.daniel\OneDrive - HOW BE TECNOLOGIA E SOLUCOES TLDA\Documentos\alterar config de câmeras\src\NxMassConfigurator\obj\Release\net8.0\win-x64\NxMassConfigurator.sourcelink.json

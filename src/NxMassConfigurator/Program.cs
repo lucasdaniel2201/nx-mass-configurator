@@ -12,6 +12,22 @@ public class Program
 
     public static async Task<int> Main(string[] args)
     {
+        // Se rodou sem argumentos (ex: duplo-clique), mostra help e aguarda
+        if (args.Length == 0)
+        {
+            Console.WriteLine("NX Mass Configurator v1.4 — Ferramenta de linha de comando.");
+            Console.WriteLine("Execute a partir do PowerShell ou CMD com os argumentos adequados.");
+            Console.WriteLine();
+            Console.WriteLine("Exemplo:");
+            Console.WriteLine("  nx-mass-config apply --user admin --server \"Server SERVER-CFTV1\" --fps 25 --dry-run");
+            Console.WriteLine();
+            Console.WriteLine("Para help completo:");
+            Console.WriteLine("  nx-mass-config --help");
+            Console.WriteLine();
+            Console.Write("Pressione qualquer tecla para fechar...");
+            Console.ReadKey();
+            return 0;
+        }
         Console.CancelKeyPress += (_, _) =>
         {
             Console.ResetColor();

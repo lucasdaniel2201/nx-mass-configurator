@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Configurador massivo de câmeras NX Witness — FPS, qualidade, codec, resolução e m" +
     "ais")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.4.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.4.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.4.0+57dbe0cd5bd79b780dbf7afaa333cfc57730e53a")]
 [assembly: System.Reflection.AssemblyProductAttribute("nx-mass-config")]
 [assembly: System.Reflection.AssemblyTitleAttribute("nx-mass-config")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.4.0.0")]
