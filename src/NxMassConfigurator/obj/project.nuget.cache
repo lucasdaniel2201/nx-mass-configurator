@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "o9QhKeci57c=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\lucas.daniel\\OneDrive - HOW BE TECNOLOGIA E SOLUCOES TLDA\\Documentos\\alterar config de câmeras\\src\\NxMassConfigurator\\NxMassConfigurator.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\lucas.daniel\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.28\\microsoft.net.illink.tasks.8.0.28.nupkg.sha512",
+    "C:\\Users\\lucas.daniel\\.nuget\\packages\\octokit\\13.0.1\\octokit.13.0.1.nupkg.sha512",
+    "C:\\Users\\lucas.daniel\\.nuget\\packages\\system.commandline\\2.0.0-beta4.22272.1\\system.commandline.2.0.0-beta4.22272.1.nupkg.sha512",
+    "C:\\Users\\lucas.daniel\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.28\\microsoft.netcore.app.runtime.win-x64.8.0.28.nupkg.sha512",
+    "C:\\Users\\lucas.daniel\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.28\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.28.nupkg.sha512",
+    "C:\\Users\\lucas.daniel\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.28\\microsoft.aspnetcore.app.runtime.win-x64.8.0.28.nupkg.sha512",
+    "C:\\Users\\lucas.daniel\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\8.0.28\\microsoft.netcore.app.crossgen2.win-x64.8.0.28.nupkg.sha512"
+  ],
+  "logs": []
+}
