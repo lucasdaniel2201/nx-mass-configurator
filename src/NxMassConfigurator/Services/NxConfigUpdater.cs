@@ -36,7 +36,7 @@ public class NxConfigUpdater
         bool unlockStream, bool lockStream,
         bool enableAudio, bool disableAudio,
         bool enableSecondary, bool disableSecondary,
-        string? codec, string? resolution,
+        string? codec, string? resolution, string? rtpTransport, bool motionOff, bool motionOn,
         bool dryRun)
     {
         var deviceId = NxClient.GetStringProperty(deviceSummary, "id");
@@ -230,6 +230,71 @@ public class NxConfigUpdater
                 else
                 {
                     _logger.LogWarn($"  {deviceName}: Formato inválido: '{resolution}'. Use 1920x1080.");
+                }
+            }
+
+            // ── RTP Transport ──
+            if (!string.IsNullOrWhiteSpace(rtpTransport))
+            {
+                var targetTransport = rtpTransport.ToLowerInvariant() switch
+                {
+                    "auto" or "a" => null,
+                    "tcp" => "TCP",
+                    "udp" => "UDP",
+                    "multicast" or "mcast" or "mc" => "Multicast",
+                    _ => rtpTransport.ToUpperInvariant()
+                };
+
+                if (configRoot.TryGetPropertyValue("parameters", out var pNode5) && pNode5 is JsonObject pObj5)
+                {
+                    var oldTransport = "Auto (ausente)";
+                    if (pObj5.TryGetPropertyValue("rtpTransport", out var rtNode) && rtNode is JsonValue rtVal)
+                        oldTransport = rtVal.GetValue<string>() ?? "?";
+
+                    if (targetTransport == null)
+                    {
+                        if (pObj5.ContainsKey("rtpTransport"))
+                        {
+                            pObj5.Remove("rtpTransport");
+                            _logger.LogInfo($"  {deviceName}: RTP Transport: {oldTransport} → Auto.");
+                            anyChange = true;
+                        }
+                        else
+                            _logger.LogInfo($"  {deviceName}: RTP Transport já é Auto.");
+                    }
+                    else if (string.Equals(oldTransport, targetTransport, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _logger.LogInfo($"  {deviceName}: RTP Transport já é {targetTransport}.");
+                    }
+                    else
+                    {
+                        pObj5["rtpTransport"] = JsonValue.Create(targetTransport);
+                        _logger.LogInfo($"  {deviceName}: RTP Transport: {oldTransport} → {targetTransport}.");
+                        anyChange = true;
+                    }
+                }
+            }
+
+            // ── Motion on/off ──
+            if (motionOff || motionOn)
+            {
+                var targetType = motionOn ? "software" : "none";
+                if (configRoot.TryGetPropertyValue("motion", out var motNode) && motNode is JsonObject motObj)
+                {
+                    var oldType = "?";
+                    if (motObj.TryGetPropertyValue("type", out var mtNode) && mtNode is JsonValue mtVal)
+                        oldType = mtVal.GetValue<string>() ?? "?";
+
+                    if (string.Equals(oldType, targetType, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _logger.LogInfo($"  {deviceName}: Motion já está {(motionOn ? "ativado" : "desativado")}.");
+                    }
+                    else
+                    {
+                        motObj["type"] = JsonValue.Create(targetType);
+                        _logger.LogInfo($"  {deviceName}: Motion: {oldType} → {targetType}.");
+                        anyChange = true;
+                    }
                 }
             }
 

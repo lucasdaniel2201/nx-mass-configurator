@@ -1,0 +1,338 @@
+<Window x:Class="NxMassConfigurator.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="NX Mass Configurator"
+        MinWidth="1240"
+        MinHeight="680"
+        Width="1360"
+        Height="860"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource AppBackground}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="84"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="34"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#141F2E" Padding="24,14">
+            <Grid>
+                <StackPanel>
+                    <TextBlock Text="NX Mass Configurator" Foreground="White" FontSize="22" FontWeight="SemiBold"/>
+                    <TextBlock Text="Inventario, selecao e configuracao massiva de cameras NX Witness"
+                               Foreground="#BDCBD9" FontSize="13" Margin="0,5,0,0"/>
+                </StackPanel>
+                <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="#203047" CornerRadius="8" Padding="12,8">
+                    <TextBlock x:Name="HeaderStatusText" Text="Ambiente nao conectado" Foreground="#D8E2EC" FontWeight="SemiBold"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Border x:Name="UpdateBanner"
+                Grid.Row="1"
+                Margin="16,12,16,0"
+                Padding="14,10"
+                CornerRadius="8"
+                Background="#ECFDF5"
+                BorderBrush="#99F6E4"
+                BorderThickness="1"
+                Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Atualizacao pronta para aplicar" FontWeight="SemiBold" Foreground="#064E3B"/>
+                    <TextBlock x:Name="UpdateBannerText" Text="A nova versao sera aplicada ao reiniciar o app." Foreground="#0F766E" Margin="0,2,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Reiniciar agora" Style="{StaticResource PrimaryButton}" Margin="16,0,8,0" Click="ApplyUpdateButton_Click"/>
+                <Button Grid.Column="2" Content="Depois" Click="DismissUpdateButton_Click"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource Card}" Margin="16,14,16,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2.2*"/>
+                    <ColumnDefinition Width="1.2*"/>
+                    <ColumnDefinition Width="1.2*"/>
+                    <ColumnDefinition Width="1.1*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0" Text="URL do NX" Style="{StaticResource SectionTitle}"/>
+                <TextBlock Grid.Column="1" Text="Usuario" Style="{StaticResource SectionTitle}" Margin="12,0,0,10"/>
+                <TextBlock Grid.Column="2" Text="Senha" Style="{StaticResource SectionTitle}" Margin="12,0,0,10"/>
+                <TextBlock Grid.Column="3" Text="Timeout" Style="{StaticResource SectionTitle}" Margin="12,0,0,10"/>
+
+                <TextBox x:Name="UrlTextBox" Grid.Row="1" Grid.Column="0" Text="https://10.81.5.11:7001"/>
+                <TextBox x:Name="UserTextBox" Grid.Row="1" Grid.Column="1" Margin="12,0,0,0"/>
+                <PasswordBox x:Name="PasswordBox" Grid.Row="1" Grid.Column="2" Margin="12,0,0,0"/>
+                <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal" Margin="12,0,0,0">
+                    <TextBox x:Name="TimeoutTextBox" Width="70" Text="15"/>
+                    <CheckBox x:Name="InsecureSslCheckBox" Content="SSL" IsChecked="True" VerticalAlignment="Center" Margin="14,0,0,0"/>
+                </StackPanel>
+                <Button x:Name="ConnectButton"
+                        Grid.Row="1"
+                        Grid.Column="4"
+                        Style="{StaticResource PrimaryButton}"
+                        Content="Conectar e listar"
+                        Margin="18,0,0,0"
+                        Click="ConnectButton_Click"/>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="3" Margin="16,8,16,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="360"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="220"/>
+            </Grid.RowDefinitions>
+
+            <UniformGrid Grid.Row="0" Grid.ColumnSpan="3" Columns="4" Margin="0,0,0,12">
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="SERVIDORES" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock x:Name="ServersCountText" Text="0" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource TextMain}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="CAMERAS" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock x:Name="DevicesCountText" Text="0" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource TextMain}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="SELECIONADAS" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock x:Name="SelectedCountText" Text="0" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource Accent}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="MODO" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock x:Name="ModeText" Text="Simulacao" FontSize="24" FontWeight="SemiBold" Foreground="{StaticResource TextMain}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,12,0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top">
+                        <TextBlock Text="SERVIDORES" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="Marque um servidor para carregar suas cameras." Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                        <UniformGrid Columns="2" Margin="0,0,0,10">
+                            <Button Content="Marcar todos" Click="SelectAllServers_Click" Margin="0,0,6,0"/>
+                            <Button Content="Limpar" Click="ClearServers_Click"/>
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <ListBox x:Name="ServersListBox" ItemsSource="{Binding Servers}" BorderBrush="{StaticResource Border}" BorderThickness="1">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Checked="ServerSelectionChanged"
+                                          Unchecked="ServerSelectionChanged"
+                                          Padding="4">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="{StaticResource TextMain}"/>
+                                        <TextBlock Foreground="{StaticResource TextMuted}" FontSize="12">
+                                            <Run Text="{Binding CameraCount, Mode=OneWay}"/><Run Text=" camera(s)  |  v"/><Run Text="{Binding Version, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Card}" Margin="0,0,12,0">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="CAMERAS" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Marque cameras especificas ou use as acoes rapidas." Foreground="{StaticResource TextMuted}"/>
+                        </StackPanel>
+                        <UniformGrid Columns="2" HorizontalAlignment="Right" Width="230">
+                            <Button Content="Marcar visiveis" Click="SelectVisibleDevices_Click" Margin="0,0,6,0"/>
+                            <Button Content="Limpar" Click="ClearVisibleDevices_Click"/>
+                        </UniformGrid>
+                    </Grid>
+
+                    <DataGrid x:Name="DevicesGrid"
+                              ItemsSource="{Binding VisibleDevices}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              IsReadOnly="False"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              BorderBrush="{StaticResource Border}"
+                              BorderThickness="1"
+                              SelectionMode="Extended">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="" Binding="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="46"/>
+                            <DataGridTextColumn Header="Camera" Binding="{Binding Name}" IsReadOnly="True" Width="2*"/>
+                            <DataGridTextColumn Header="Servidor" Binding="{Binding ServerName}" IsReadOnly="True" Width="1.4*"/>
+                            <DataGridTextColumn Header="Id" Binding="{Binding Id}" IsReadOnly="True" Width="1.6*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Style="{StaticResource Card}">
+                <DockPanel LastChildFill="True">
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+                        <Button x:Name="RunButton" Content="Executar selecao" Style="{StaticResource PrimaryButton}" IsEnabled="False" Click="RunButton_Click" Margin="0,0,0,8"/>
+                        <Button x:Name="CancelButton" Content="Cancelar" Style="{StaticResource DangerButton}" IsEnabled="False" Click="CancelButton_Click"/>
+                    </StackPanel>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,8,0">
+                    <StackPanel>
+                        <TextBlock Text="CONFIGURACAO" Style="{StaticResource SectionTitle}"/>
+
+                        <CheckBox x:Name="FpsCheckBox" Content="Alterar FPS" Checked="FpsCheckBox_Changed" Unchecked="FpsCheckBox_Changed"/>
+                        <TextBox x:Name="FpsTextBox" Text="25" IsEnabled="False" Margin="0,6,0,12"/>
+
+                        <TextBlock Text="Qualidade" Foreground="{StaticResource TextMuted}"/>
+                        <ComboBox x:Name="QualityComboBox" SelectedIndex="0" Margin="0,4,0,10">
+                            <ComboBoxItem Content="Nao alterar"/>
+                            <ComboBoxItem Content="low"/>
+                            <ComboBoxItem Content="medium"/>
+                            <ComboBoxItem Content="high"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Stream" Foreground="{StaticResource TextMuted}"/>
+                        <ComboBox x:Name="StreamComboBox" SelectedIndex="0" Margin="0,4,0,10">
+                            <ComboBoxItem Content="Nao alterar"/>
+                            <ComboBoxItem Content="Desmarcar - NX gerencia"/>
+                            <ComboBoxItem Content="Marcar - camera gerencia"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Audio" Foreground="{StaticResource TextMuted}"/>
+                        <ComboBox x:Name="AudioComboBox" SelectedIndex="0" Margin="0,4,0,10">
+                            <ComboBoxItem Content="Nao alterar"/>
+                            <ComboBoxItem Content="Habilitar audio"/>
+                            <ComboBoxItem Content="Desabilitar audio"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Stream secundario" Foreground="{StaticResource TextMuted}"/>
+                        <ComboBox x:Name="SecondaryComboBox" SelectedIndex="0" Margin="0,4,0,10">
+                            <ComboBoxItem Content="Nao alterar"/>
+                            <ComboBoxItem Content="Habilitar secundario"/>
+                            <ComboBoxItem Content="Desabilitar secundario"/>
+                        </ComboBox>
+
+                        <Grid Margin="0,2,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Codec" Foreground="{StaticResource TextMuted}"/>
+                                <TextBox x:Name="CodecTextBox" Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Resolucao" Foreground="{StaticResource TextMuted}"/>
+                                <TextBox x:Name="ResolutionTextBox" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="RTP" Foreground="{StaticResource TextMuted}"/>
+                        <ComboBox x:Name="RtpComboBox" SelectedIndex="0" Margin="0,4,0,10">
+                            <ComboBoxItem Content="Nao alterar"/>
+                            <ComboBoxItem Content="auto"/>
+                            <ComboBoxItem Content="tcp"/>
+                            <ComboBoxItem Content="udp"/>
+                            <ComboBoxItem Content="multicast"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Movimento" Foreground="{StaticResource TextMuted}"/>
+                        <ComboBox x:Name="MotionComboBox" SelectedIndex="0" Margin="0,4,0,14">
+                            <ComboBoxItem Content="Nao alterar"/>
+                            <ComboBoxItem Content="Ativar movimento"/>
+                            <ComboBoxItem Content="Desativar movimento"/>
+                        </ComboBox>
+
+                        <CheckBox x:Name="DryRunCheckBox" Content="Simular antes de aplicar" IsChecked="True" Checked="DryRunCheckBox_Changed" Unchecked="DryRunCheckBox_Changed" Margin="0,0,0,10"/>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Concorrencia" Foreground="{StaticResource TextMuted}"/>
+                                <TextBox x:Name="ConcurrencyTextBox" Text="6" Margin="0,4,8,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="CSV" Foreground="{StaticResource TextMuted}"/>
+                                <Grid Margin="0,4,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="42"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="OutputTextBox"/>
+                                    <Button Grid.Column="1" Content="..." Margin="6,0,0,0" Click="BrowseOutput_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource Card}" Margin="0,12,12,0">
+                <TabControl>
+                    <TabItem Header="Log">
+                        <TextBox x:Name="LogTextBox"
+                                 Background="#121924"
+                                 Foreground="#D8E2EC"
+                                 BorderThickness="0"
+                                 FontFamily="Consolas"
+                                 FontSize="12"
+                                 IsReadOnly="True"
+                                 TextWrapping="NoWrap"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Auto"/>
+                    </TabItem>
+                    <TabItem Header="Resultado">
+                        <DataGrid x:Name="ResultsGrid"
+                                  ItemsSource="{Binding Results}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Servidor" Binding="{Binding ServerName}" Width="1.2*"/>
+                                <DataGridTextColumn Header="Camera" Binding="{Binding DeviceName}" Width="1.5*"/>
+                                <DataGridTextColumn Header="FPS antigo" Binding="{Binding OldFps}" Width="90"/>
+                                <DataGridTextColumn Header="FPS novo" Binding="{Binding NewFps}" Width="90"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                                <DataGridTextColumn Header="Erro" Binding="{Binding ErrorMessage}" Width="2*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="4" Background="#E8EEF5" Padding="16,6">
+            <TextBlock x:Name="StatusTextBlock" Text="Pronto para conectar." Foreground="{StaticResource TextMuted}"/>
+        </Border>
+    </Grid>
+</Window>

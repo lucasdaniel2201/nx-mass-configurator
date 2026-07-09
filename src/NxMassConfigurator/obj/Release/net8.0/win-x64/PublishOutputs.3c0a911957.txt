@@ -1,1 +1,0 @@
-C:\Users\lucas.daniel\OneDrive - HOW BE TECNOLOGIA E SOLUCOES TLDA\Documentos\alterar config de câmeras\src\NxMassConfigurator\bin\Release\net8.0\win-x64\publish\nx-mass-config.exe

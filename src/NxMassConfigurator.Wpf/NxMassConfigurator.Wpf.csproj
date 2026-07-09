@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>nx-mass-config-wpf</AssemblyName>
+    <RootNamespace>NxMassConfigurator.Wpf</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>HOW BE Tecnologia</Authors>
+    <Description>Interface WPF moderna para configuracao massiva de cameras NX Witness</Description>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NxMassConfigurator\NxMassConfigurator.csproj" />
+  </ItemGroup>
+
+</Project>

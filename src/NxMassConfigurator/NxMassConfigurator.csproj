@@ -1,38 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>nx-mass-config</AssemblyName>
+    <AssemblyName>NxMassConfigurator.Core</AssemblyName>
     <RootNamespace>NxMassConfigurator</RootNamespace>
     <Version>1.4.0</Version>
     <InformationalVersion>1.4.0</InformationalVersion>
     <FileVersion>1.4.0</FileVersion>
     <Authors>HOW BE Tecnologia</Authors>
-    <Description>Configurador massivo de câmeras NX Witness — FPS, qualidade, codec, resolução e mais</Description>
+    <Description>Biblioteca de configuracao massiva de cameras NX Witness</Description>
     <Copyright>2026 HOW BE Tecnologia e Soluções LTDA</Copyright>
 
-    <!-- Ícone do .exe (substituir app_icon.ico pelo ícone definitivo) -->
-    <!-- <ApplicationIcon>app_icon.ico</ApplicationIcon> -->
-
-    <!-- Self-contained single-file publish -->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <SelfContained>true</SelfContained>
-    <PublishSingleFile>true</PublishSingleFile>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <DebugType>embedded</DebugType>
-
     <!-- GitHub repo for auto-update -->
-    <RepositoryUrl>https://github.com/SEU_USUARIO/nx-mass-configurator</RepositoryUrl>
+    <RepositoryUrl>https://github.com/lucasdaniel2201/nx-mass-configurator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="Octokit" Version="13.0.1" />
   </ItemGroup>
 

@@ -6,118 +6,61 @@ namespace NxMassConfigurator.Services;
 
 public class DeviceProcessor
 {
-    private readonly NxConfigUpdater _updater;
-    private readonly ILogger _logger;
-    private readonly int _maxConcurrency;
-    private readonly int _maxRetries;
-    private readonly CancellationToken _cancellationToken;
+    private readonly NxConfigUpdater _u; private readonly ILogger _l;
+    private readonly int _c, _r; private readonly CancellationToken _ct;
 
-    public DeviceProcessor(NxConfigUpdater updater, ILogger logger,
-        int maxConcurrency = 6, int maxRetries = 3, CancellationToken ct = default)
-    {
-        _updater = updater; _logger = logger;
-        _maxConcurrency = maxConcurrency; _maxRetries = maxRetries;
-        _cancellationToken = ct;
-    }
+    public DeviceProcessor(NxConfigUpdater u, ILogger l, int c = 6, int r = 3, CancellationToken ct = default)
+    { _u = u; _l = l; _c = c; _r = r; _ct = ct; }
 
     public async Task<List<OperationResult>> ProcessAllAsync(
-        List<JsonElement> devices, string serverName,
-        double? targetFps, string? targetQuality,
-        bool unlockStream, bool lockStream,
-        bool enableAudio, bool disableAudio,
-        bool enableSecondary, bool disableSecondary,
-        string? codec, string? resolution,
-        bool dryRun)
+        List<JsonElement> devs, string srv,
+        double? fps, string? qual,
+        bool unl, bool lok, bool ea, bool da, bool es, bool ds,
+        string? codec, string? res, string? rtp, bool moff, bool mon,
+        bool dry)
     {
         var results = new ConcurrentBag<OperationResult>();
-        var semaphore = new SemaphoreSlim(_maxConcurrency);
-        int total = devices.Count, processed = 0;
+        var sem = new SemaphoreSlim(_c); int tot = devs.Count, prc = 0;
 
         var desc = new List<string>();
-        if (targetFps.HasValue) desc.Add($"FPS→{targetFps}");
-        if (!string.IsNullOrWhiteSpace(targetQuality)) desc.Add($"Q→{targetQuality}");
-        if (unlockStream) desc.Add("Stream→desmarcar");
-        if (lockStream) desc.Add("Stream→marcar");
-        if (enableAudio) desc.Add("Áudio→hab");
-        if (disableAudio) desc.Add("Áudio→desab");
-        if (enableSecondary) desc.Add("Sec→hab");
-        if (disableSecondary) desc.Add("Sec→desab");
-        if (!string.IsNullOrWhiteSpace(codec)) desc.Add($"Codec→{codec}");
-        if (!string.IsNullOrWhiteSpace(resolution)) desc.Add($"Res→{resolution}");
+        if (fps.HasValue) desc.Add($"FPS→{fps}"); if (!string.IsNullOrWhiteSpace(qual)) desc.Add($"Q→{qual}");
+        if (unl) desc.Add("Stream"); if (lok) desc.Add("Stream+"); if (ea) desc.Add("A+"); if (da) desc.Add("A-");
+        if (es) desc.Add("Sec+"); if (ds) desc.Add("Sec-"); if (!string.IsNullOrWhiteSpace(codec)) desc.Add(codec);
+        if (!string.IsNullOrWhiteSpace(res)) desc.Add(res); if (!string.IsNullOrWhiteSpace(rtp)) desc.Add($"RTP:{rtp}");
+        if (moff) desc.Add("Mot-"); if (mon) desc.Add("Mot+");
 
-        _logger.LogInfo(dryRun
-            ? $"Processando {total} câmeras em DRY-RUN ({string.Join(", ", desc)})..."
-            : $"Processando {total} câmeras ({string.Join(", ", desc)})...");
+        _l.LogInfo(dry ? $"DRY-RUN {tot} cams ({string.Join(", ", desc)})..." : $"Processando {tot} cams ({string.Join(", ", desc)})...");
 
-        var tasks = devices.Select(async device =>
+        var tasks = devs.Select(async d =>
         {
-            await semaphore.WaitAsync(_cancellationToken);
-            try
-            {
-                var r = await ProcessWithRetryAsync(device, serverName, targetFps, targetQuality,
-                    unlockStream, lockStream, enableAudio, disableAudio, enableSecondary, disableSecondary,
-                    codec, resolution, dryRun);
-                results.Add(r);
-            }
-            finally
-            {
-                semaphore.Release();
-                Interlocked.Increment(ref processed);
-                if (processed % 10 == 0 || processed == total)
-                    _logger.LogInfo($"Progresso: {processed}/{total}.");
-            }
+            await sem.WaitAsync(_ct);
+            try { results.Add(await Rx(d, srv, fps, qual, unl, lok, ea, da, es, ds, codec, res, rtp, moff, mon, dry)); }
+            finally { sem.Release(); Interlocked.Increment(ref prc); if (prc % 10 == 0 || prc == tot) _l.LogInfo($"{prc}/{tot}."); }
         });
         await Task.WhenAll(tasks);
         return results.OrderBy(r => r.DeviceName).ToList();
     }
 
-    private async Task<OperationResult> ProcessWithRetryAsync(
-        JsonElement device, string serverName,
-        double? targetFps, string? targetQuality,
-        bool unlockStream, bool lockStream,
-        bool enableAudio, bool disableAudio,
-        bool enableSecondary, bool disableSecondary,
-        string? codec, string? resolution,
-        bool dryRun)
+    private async Task<OperationResult> Rx(JsonElement d, string srv, double? fps, string? qual,
+        bool unl, bool lok, bool ea, bool da, bool es, bool ds,
+        string? codec, string? res, string? rtp, bool moff, bool mon, bool dry)
     {
-        var deviceId = NxClient.GetStringProperty(device, "id");
-        var deviceName = NxClient.GetStringProperty(device, "name");
-
-        for (int attempt = 0; attempt <= _maxRetries; attempt++)
+        var id = NxClient.GetStringProperty(d, "id"); var nm = NxClient.GetStringProperty(d, "name");
+        for (int a = 0; a <= _r; a++)
         {
             try
             {
-                if (_cancellationToken.IsCancellationRequested)
-                    return Fail(deviceId, deviceName, "Cancelado.");
-
-                var result = await _updater.UpdateDeviceAsync(device, serverName, targetFps, targetQuality,
-                    unlockStream, lockStream, enableAudio, disableAudio, enableSecondary, disableSecondary,
-                    codec, resolution, dryRun);
-
-                if (result.IsSuccess || result.IsDryRun || result.Status == "skipped") return result;
-
-                if (attempt < _maxRetries && Transient(result.ErrorMessage))
-                {
-                    var d = TimeSpan.FromSeconds(Math.Pow(2, attempt + 1) + Random.Shared.NextDouble());
-                    _logger.LogWarn($"{deviceName}: Tentativa {attempt + 1}/{_maxRetries}. Retry {d.TotalSeconds:F1}s...");
-                    await Task.Delay(d, _cancellationToken); continue;
-                }
-                return result;
+                if (_ct.IsCancellationRequested) return F(id, nm, "Cancelado.");
+                var r = await _u.UpdateDeviceAsync(d, srv, fps, qual, unl, lok, ea, da, es, ds, codec, res, rtp, moff, mon, dry);
+                if (r.IsSuccess || r.IsDryRun || r.Status == "skipped") return r;
+                if (a < _r && T(r.ErrorMessage)) { var w = W(a); _l.LogWarn($"{nm}: T{a + 1}/{_r}. {w.TotalSeconds:F1}s..."); await Task.Delay(w, _ct); continue; }
+                return r;
             }
-            catch (Exception ex)
-            {
-                if (attempt >= _maxRetries) return Fail(deviceId, deviceName, $"Falha ({_maxRetries} tentativas): {ex.Message}");
-                var d = TimeSpan.FromSeconds(Math.Pow(2, attempt + 1) + Random.Shared.NextDouble());
-                _logger.LogWarn($"{deviceName}: Erro (tentativa {attempt + 1}/{_maxRetries}). Retry {d.TotalSeconds:F1}s...");
-                await Task.Delay(d, _cancellationToken);
-            }
+            catch (Exception ex) { if (a >= _r) return F(id, nm, $"Falha: {ex.Message}"); await Task.Delay(W(a), _ct); }
         }
-        return Fail(deviceId, deviceName, "Máximo de retries.");
+        return F(id, nm, "Max retries.");
     }
-
-    private static OperationResult Fail(string id, string name, string msg) =>
-        new() { DeviceId = id, DeviceName = name, Status = "failed", ErrorMessage = msg };
-
-    private static bool Transient(string? msg) =>
-        msg?.Contains("429") == true || msg?.Contains("Timeout") == true || msg?.Contains("503") == true;
+    static TimeSpan W(int a) => TimeSpan.FromSeconds(Math.Pow(2, a + 1) + Random.Shared.NextDouble());
+    static OperationResult F(string i, string n, string m) => new() { DeviceId = i, DeviceName = n, Status = "failed", ErrorMessage = m };
+    static bool T(string? m) => m?.Contains("429") == true || m?.Contains("Timeout") == true || m?.Contains("503") == true;
 }

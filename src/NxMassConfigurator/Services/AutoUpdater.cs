@@ -15,6 +15,7 @@ public class AutoUpdater
     private readonly string _repoOwner;
     private readonly string _repoName;
     private readonly string _currentVersion;
+    private readonly string _assetNameContains;
 
     private const string TokenEnvVar = "NX_GITHUB_TOKEN";
 
@@ -29,11 +30,12 @@ public class AutoUpdater
     // Caminho para o .exe baixado (pendente de aplicar)
     private string? _pendingUpdatePath;
 
-    public AutoUpdater(ILogger logger, string repoOwner, string repoName)
+    public AutoUpdater(ILogger logger, string repoOwner, string repoName, string assetNameContains = "nx-mass-config")
     {
         _logger = logger;
         _repoOwner = repoOwner;
         _repoName = repoName;
+        _assetNameContains = assetNameContains;
         _currentVersion = CurrentSemVer.ToString();
     }
 
@@ -71,18 +73,18 @@ public class AutoUpdater
             // Encontra o asset .exe
             var exeAsset = latest.Assets.FirstOrDefault(a =>
                 a.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) &&
-                a.Name.Contains("nx-mass-config", StringComparison.OrdinalIgnoreCase));
+                a.Name.Contains(_assetNameContains, StringComparison.OrdinalIgnoreCase));
 
             if (exeAsset == null)
             {
-                _logger.LogWarn("Asset .exe não encontrado no release.");
+                _logger.LogWarn($"Asset .exe contendo '{_assetNameContains}' não encontrado no release.");
                 return false;
             }
 
             // Download
             var tempDir = Path.Combine(Path.GetTempPath(), "nx-mass-config-update");
             Directory.CreateDirectory(tempDir);
-            var downloadPath = Path.Combine(tempDir, "nx-mass-config.exe");
+            var downloadPath = Path.Combine(tempDir, Path.GetFileName(Environment.ProcessPath ?? exeAsset.Name));
 
             _logger.LogInfo($"Baixando {exeAsset.Name} ({exeAsset.Size / 1024} KB)...");
 
@@ -122,6 +124,7 @@ public class AutoUpdater
         {
             var currentExe = Environment.ProcessPath;
             if (currentExe == null) return;
+            var currentPid = Environment.ProcessId;
 
             var batPath = Path.Combine(Path.GetTempPath(), "nx-mass-config-update.bat");
             var batContent = $"""
@@ -129,7 +132,8 @@ public class AutoUpdater
                 echo Aguardando encerramento do nx-mass-config...
                 :loop
                 timeout /t 1 /nobreak >nul 2>&1
-                if exist "{currentExe}" goto loop
+                tasklist /FI "PID eq {currentPid}" | find "{currentPid}" >nul 2>&1
+                if not errorlevel 1 goto loop
 
                 echo Substituindo {currentExe}...
                 move /Y "{_pendingUpdatePath}" "{currentExe}"

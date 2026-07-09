@@ -1,0 +1,13 @@
+bin/
+obj/
+publish/
+publish-*/
+*.user
+*.suo
+*.log
+*.tmp
+*.csv
+*.pdb
+
+# Published single-file executables should go to GitHub Releases, not git.
+*.exe
