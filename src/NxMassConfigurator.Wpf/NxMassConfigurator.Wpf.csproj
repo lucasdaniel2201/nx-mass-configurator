@@ -8,7 +8,9 @@
     <Nullable>enable</Nullable>
     <AssemblyName>nx-mass-config-wpf</AssemblyName>
     <RootNamespace>NxMassConfigurator.Wpf</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
+    <InformationalVersion>2.0.0</InformationalVersion>
+    <FileVersion>2.0.0</FileVersion>
     <Authors>HOW BE Tecnologia</Authors>
     <Description>Interface WPF moderna para configuracao massiva de cameras NX Witness</Description>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
