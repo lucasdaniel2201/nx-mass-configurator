@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NxMassConfigurator", "src\N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NxMassConfigurator.Wpf", "src\NxMassConfigurator.Wpf\NxMassConfigurator.Wpf.csproj", "{E41D19BF-DD04-4843-B759-1C0A83AC324A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NxMassConfigurator.Tests", "src\NxMassConfigurator.Tests\NxMassConfigurator.Tests.csproj", "{19206657-7615-447E-A0FF-7D119BC86C4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +28,14 @@ Global
 		{E41D19BF-DD04-4843-B759-1C0A83AC324A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E41D19BF-DD04-4843-B759-1C0A83AC324A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E41D19BF-DD04-4843-B759-1C0A83AC324A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19206657-7615-447E-A0FF-7D119BC86C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19206657-7615-447E-A0FF-7D119BC86C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19206657-7615-447E-A0FF-7D119BC86C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19206657-7615-447E-A0FF-7D119BC86C4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{87C59770-A201-47BD-AAC1-7DB23376FD55} = {A0235800-32C5-44E5-9643-FA6471FE7176}
 		{E41D19BF-DD04-4843-B759-1C0A83AC324A} = {A0235800-32C5-44E5-9643-FA6471FE7176}
+		{19206657-7615-447E-A0FF-7D119BC86C4B} = {A0235800-32C5-44E5-9643-FA6471FE7176}
 	EndGlobalSection
 EndGlobal

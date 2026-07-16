@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <PackageReference Include="Octokit" Version="13.0.1" />
+    <PackageReference Include="SMBLibrary" Version="1.5.2" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
   </ItemGroup>
 
 </Project>

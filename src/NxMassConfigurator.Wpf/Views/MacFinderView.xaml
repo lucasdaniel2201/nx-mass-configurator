@@ -1,0 +1,224 @@
+<UserControl x:Class="NxMassConfigurator.Wpf.Views.MacFinderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource AppBackground}">
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="180"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Row 0: NAS Configuration ── -->
+        <Border Grid.Row="0" Style="{StaticResource Card}" Margin="16,12,16,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Servers list -->
+                <StackPanel>
+                    <TextBlock Text="SERVIDORES QNAP" Style="{StaticResource SectionTitle}"/>
+                    <ListBox ItemsSource="{Binding Servers}" 
+                             BorderBrush="{StaticResource Border}" BorderThickness="1"
+                             MinHeight="100" MaxHeight="140"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Padding="2">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Ip}" FontWeight="SemiBold" Foreground="{StaticResource TextMain}"/>
+                                        <TextBlock Text="  " Foreground="{StaticResource TextMuted}"/>
+                                        <TextBlock Text="{Binding Share}" Foreground="{StaticResource TextMuted}" FontSize="11"/>
+                                    </StackPanel>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <UniformGrid Columns="2" Margin="0,6,0,0">
+                        <Button Content="+ Adicionar" Click="AddServer_Click" Margin="0,0,4,0" 
+                                Height="28" FontSize="11"/>
+                        <Button Content="- Remover" Click="RemoveServer_Click"
+                                Height="28" FontSize="11"/>
+                    </UniformGrid>
+                </StackPanel>
+
+                <!-- Credentials -->
+                <Grid Grid.Column="1" Margin="14,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="CREDENCIAIS" Style="{StaticResource SectionTitle}"/>
+
+                    <TextBlock Grid.Row="1" Text="Share" Foreground="{StaticResource TextMuted}" FontSize="11"/>
+                    <TextBox Grid.Row="1" Text="{Binding Share, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,2,0,6" Height="28"/>
+
+                    <TextBlock Grid.Row="2" Text="Usuário" Foreground="{StaticResource TextMuted}" FontSize="11"/>
+                    <TextBox Grid.Row="2" Text="{Binding Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,2,0,6" Height="28"/>
+
+                    <TextBlock Grid.Row="3" Text="Senha" Foreground="{StaticResource TextMuted}" FontSize="11"/>
+                    <Grid Grid.Row="3" Margin="0,2,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <PasswordBox x:Name="NasPasswordBox" Height="28"/>
+                        <CheckBox Grid.Column="1" Content="TLS" IsChecked="{Binding TlsVerify, Mode=TwoWay}" 
+                                  VerticalAlignment="Center" Margin="8,0,0,0" FontSize="11"/>
+                    </Grid>
+
+                    <Button Grid.Row="4" Content="Salvar configuração" Click="SaveSettings_Click"
+                            Height="30" VerticalAlignment="Bottom"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ── Row 1: Search bar ── -->
+        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="16,6,16,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="MAC" Style="{StaticResource SectionTitle}" 
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+                <TextBox Grid.Column="1" x:Name="MacTextBox" 
+                         Text="{Binding MacAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Width="180" Height="30"
+                         FontFamily="Consolas" FontSize="13"
+                         ToolTip="Ex: E4-24-6C-99-7C-C4"/>
+
+                <TextBlock Grid.Column="2" 
+                           Margin="8,0,0,0" VerticalAlignment="Center"
+                           FontSize="11" Foreground="{StaticResource TextMuted}">
+                    <Run Text="Buscar: "/>
+                    <Run Text="{Binding NormalizedMac, Mode=OneWay}" Foreground="{StaticResource Accent}" FontWeight="SemiBold"/>
+                    <Run Text=" em hi_quality + low_quality"/>
+                </TextBlock>
+
+                <Button Grid.Column="3" x:Name="SearchButton" Content="🔍 Buscar Pastas"
+                        Style="{StaticResource PrimaryButton}"
+                        Click="SearchButton_Click"
+                        IsEnabled="{Binding CanSearch}"
+                        Height="34" Padding="16,0" Margin="0,0,8,0"/>
+
+                <Button Grid.Column="4" x:Name="CancelSearchButton" Content="✕ Cancelar"
+                        Click="CancelSearch_Click"
+                        Visibility="Collapsed"
+                        Height="34" Padding="12,0"/>
+            </Grid>
+        </Border>
+
+        <!-- ── Row 2: Progress ── -->
+        <Grid Grid.Row="2" Margin="16,0,16,0">
+            <ProgressBar x:Name="SearchProgressBar"
+                         Minimum="0" Maximum="1" Height="6"
+                         Visibility="Collapsed" Margin="0,4"/>
+            <TextBlock x:Name="ProgressText"
+                       Text=""
+                       FontSize="11" Foreground="{StaticResource TextMuted}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- ── Row 3: Results ── -->
+        <Border Grid.Row="3" Style="{StaticResource Card}" Margin="16,6,16,6">
+            <DockPanel>
+                <!-- Header -->
+                <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                    <StackPanel>
+                        <TextBlock Text="RESULTADOS" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Foreground="{StaticResource TextMuted}" FontSize="11">
+                            <Run Text="Encontrados: "/>
+                            <Run Text="{Binding FoundCount, Mode=OneWay}" FontWeight="SemiBold" Foreground="{StaticResource Accent}"/>
+                            <Run Text="  ·  "/>
+                            <Run Text="Tempo: "/>
+                            <Run Text="{Binding ElapsedText, Mode=OneWay, TargetNullValue='--'}" FontWeight="SemiBold"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="DeleteAllButton" Content="🗑️ Excluir Todos"
+                                Style="{StaticResource DangerButton}"
+                                Click="DeleteAll_Click"
+                                IsEnabled="{Binding CanDelete}"
+                                Height="32" Padding="14,0" Margin="0,0,8,0"/>
+                        <Button x:Name="CancelDeleteButton" Content="✕ Cancelar"
+                                Click="CancelDelete_Click"
+                                Visibility="Collapsed"
+                                Height="32" Padding="12,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Path list -->
+                <ListBox ItemsSource="{Binding FoundPaths}" 
+                         BorderBrush="{StaticResource Border}" BorderThickness="1"
+                         SelectionMode="Single">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="📁" FontSize="14" VerticalAlignment="Center"/>
+
+                                <TextBlock Grid.Column="1" Text="{Binding UncPath}" 
+                                           FontFamily="Consolas" FontSize="11"
+                                           Foreground="{StaticResource TextMain}"
+                                           Margin="8,0" VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"/>
+
+                                <TextBlock Grid.Column="2" 
+                                           Margin="8,0" VerticalAlignment="Center"
+                                           FontSize="10" Foreground="{StaticResource TextMuted}">
+                                    <Run Text="{Binding Method, Mode=OneWay}" FontWeight="SemiBold"/>
+                                </TextBlock>
+
+                                <Button Grid.Column="3" Content="🗑️" 
+                                        Tag="{Binding}"
+                                        Width="32" Height="26"
+                                        FontSize="12" Padding="0"
+                                        Click="DeleteSingle_Click"
+                                        ToolTip="Excluir esta pasta"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- ── Row 4: Log ── -->
+        <Border Grid.Row="4" Style="{StaticResource Card}" Margin="16,0,16,12">
+            <TextBox x:Name="LogTextBox"
+                     Text="{Binding LogText, Mode=OneWay}"
+                     Background="#121924"
+                     Foreground="#D8E2EC"
+                     BorderThickness="0"
+                     FontFamily="Consolas"
+                     FontSize="11"
+                     IsReadOnly="True"
+                     TextWrapping="NoWrap"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto"/>
+        </Border>
+    </Grid>
+</UserControl>
