@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text.Json;
 using System.ComponentModel;
 using System.Windows;
@@ -170,6 +171,75 @@ public partial class MainWindow
         }
     }
 
+    private async void BackupButton_Click(object sender, RoutedEventArgs e)
+    {
+        var validation = ValidateConnectionInputs();
+        if (validation != null)
+        {
+            MessageBox.Show(this, validation, "Verifique os dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (GetSelectedTargets().Count == 0)
+        {
+            MessageBox.Show(this, "Selecione ao menos uma camera.", "Verifique os dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var dialog = new OpenFolderDialog { Title = "Pasta para o backup" };
+        if (dialog.ShowDialog(this) != true)
+            return;
+
+        var rootDirectory = Path.Combine(dialog.FolderName, $"nx-backup-{DateTime.Now:yyyyMMdd-HHmmss}");
+
+        SetBusy(true, "Fazendo backup das configuracoes...");
+        var logger = new WpfLogger(Dispatcher, AppendLog);
+        var allResults = new List<BackupResult>();
+
+        try
+        {
+            using var client = new NxClient(UrlTextBox.Text.Trim(), logger, InsecureSslCheckBox.IsChecked == true, ReadInt(TimeoutTextBox.Text, 15));
+            logger.LogInfo($"Autenticando como '{UserTextBox.Text.Trim()}' para backup...");
+            await client.AuthenticateAsync(UserTextBox.Text.Trim(), PasswordBox.Password);
+
+            var backupService = new BackupService(client, logger);
+            foreach (var target in GetSelectedTargets())
+            {
+                logger.LogInfo($"Fazendo backup em {target.Server.Name}: {target.Devices.Count} camera(s) selecionada(s).");
+                var results = await backupService.BackupAsync(
+                    target.Devices.Select(d => d.Device).ToList(),
+                    target.Server.Name,
+                    rootDirectory);
+                allResults.AddRange(results);
+            }
+
+            await client.LogoutAsync();
+
+            var saved = allResults.Count(r => r.IsSuccess);
+            var failed = allResults.Count(r => r.IsFailed);
+            if (failed > 0)
+                logger.LogErro($"Backup concluido com falhas: {saved} salva(s), {failed} falha(s). Pasta: {rootDirectory}");
+            else
+                logger.LogSucesso($"Backup concluido: {saved} camera(s) salva(s). Pasta: {rootDirectory}");
+
+            MessageBox.Show(this,
+                $"Backup concluido.\nCameras salvas: {saved}\nFalhas: {failed}\nPasta: {rootDirectory}",
+                "Backup", MessageBoxButton.OK,
+                failed > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
+            SetStatus("Backup finalizado.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogErro($"{ex.GetType().Name}: {ex.Message}");
+            SetStatus("Erro durante o backup.");
+        }
+        finally
+        {
+            SetBusy(false);
+            RefreshSummary();
+        }
+    }
+
     private void CancelButton_Click(object sender, RoutedEventArgs e)
         => _cts?.Cancel();
 
@@ -304,6 +374,7 @@ public partial class MainWindow
         SelectedCountText.Text = selected.ToString();
         HeaderStatusText.Text = _vm.Servers.Count == 0 ? "Ambiente nao conectado" : $"{_vm.Servers.Count} servidor(es) carregado(s)";
         RunButton.IsEnabled = _cts == null && selected > 0;
+        BackupButton.IsEnabled = _cts == null && selected > 0;
         if (_cts == null)
             SetStatus(selected > 0 ? $"{selected} camera(s) selecionada(s)." : "Selecione servidores e cameras para habilitar a execucao.");
     }
@@ -327,6 +398,7 @@ public partial class MainWindow
     {
         ConnectButton.IsEnabled = !busy;
         RunButton.IsEnabled = !busy && GetSelectedTargets().Count > 0;
+        BackupButton.IsEnabled = !busy && GetSelectedTargets().Count > 0;
         CancelButton.IsEnabled = false;
         Mouse.OverrideCursor = busy ? Cursors.Wait : null;
         if (status != null)
@@ -337,6 +409,7 @@ public partial class MainWindow
     {
         ConnectButton.IsEnabled = !running;
         RunButton.IsEnabled = !running;
+        BackupButton.IsEnabled = !running;
         CancelButton.IsEnabled = running;
         Mouse.OverrideCursor = running ? Cursors.Wait : null;
         SetStatus(running ? "Executando configuracoes nas cameras selecionadas..." : "Pronto.");
