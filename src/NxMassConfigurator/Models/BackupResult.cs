@@ -26,6 +26,18 @@ public class BackupResult
     /// <summary>Tamanho do arquivo gravado em bytes.</summary>
     public long SizeBytes { get; set; }
 
+    /// <summary>Resolução ex. "1920x1080"; vazio se desconhecido.</summary>
+    public string Resolution { get; set; } = string.Empty;
+
+    /// <summary>FPS da câmera (se encontrado na configuração).</summary>
+    public double? Fps { get; set; }
+
+    /// <summary>Codec de vídeo ex. "H264"; vazio se desconhecido.</summary>
+    public string Codec { get; set; } = string.Empty;
+
+    /// <summary>Bitrate em kbps (se encontrado na configuração).</summary>
+    public long? BitrateKbps { get; set; }
+
     public bool IsSuccess => Status == "success";
     public bool IsFailed => Status == "failed";
 }
